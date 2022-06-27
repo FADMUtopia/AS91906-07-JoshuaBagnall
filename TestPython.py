@@ -1,6 +1,4 @@
-
 from tkinter import *
-from PIL import Image, ImageTk
 from tkinter import messagebox
 
 
@@ -16,12 +14,6 @@ understanding the parameters in the init function (constructor):
 class Start(Frame):
     def __init__(self, parent, controller):
         Frame.__init__(self, parent)
-        
-        load = Image.open("img1.jpg")
-        self.photo = ImageTk.PhotoImage(load)
-        self.label = Label(self, image=self.photo)
-        self.label.image=self.photo
-        self.label.place(x=0,y=0)
         
         self.border = LabelFrame(self, text='Login', bg='ivory', bd = 10, font=("Arial", 20))
         self.border.pack(fill="both", expand="yes", padx = 150, pady=150)
@@ -100,13 +92,7 @@ class Start(Frame):
 class Second(Frame):
     def __init__(self, parent, controller):
         Frame.__init__(self, parent)
-        
-        load = Image.open("img2.jpg")
-        self.photo = ImageTk.PhotoImage(load)
-        self.label = Label(self, image=self.photo)
-        self.label.image=self.photo
-        self.label.place(x=0,y=0)
-        
+    
         self.title_label = Label(self, text="Start of Appliction, Welocme to my program....", bg = "ivory", font=("Arial Bold", 25))
         self.title_label.place(x=40, y=150)        
         self.next_button = Button(self, text="Next", font=("Arial", 15), command=lambda: controller.show_frame(Third))
@@ -171,5 +157,4 @@ if __name__ == '__main__':
     app = Application()
     app.maxsize(800,500)
     app.mainloop()
-
 
