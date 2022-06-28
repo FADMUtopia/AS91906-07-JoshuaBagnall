@@ -75,7 +75,7 @@ class Start(Frame):
                     if reg_password_entry.get()==confirm_password_entry.get():
                         reg_password_salt = hashlib.pbkdf2_hmac('sha256', reg_password_entry.get().encode('utf-8'), salt, 100000)
                         with open("users.txt", "a") as f:
-                            f.write(reg_name_entry.get() + "," + reg_password_salt+"\n")
+                            f.write(reg_name_entry.get() + "," + str(reg_password_salt)+"\n")
                             messagebox.showinfo("Welcome","You are registered successfully!!")
                             register_window.destroy()
                     else:
