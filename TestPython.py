@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import messagebox
-
+import hashlib
+import os
 
 '''
 understanding the parameters in the init function (constructor):
@@ -57,7 +58,8 @@ class Start(Frame):
             reg_name_label.place(x=10, y=10)
             reg_name_entry = Entry(register_window, width=30, bd=5)
             reg_name_entry.place(x = 200, y=10)
-            
+            salt = os.urandom(32)
+
             reg_password_label = Label(register_window, text="Password:", font=("Arial",15), bg="deep sky blue")
             reg_password_label.place(x=10, y=60)
             reg_password_entry = Entry(register_window, width=30, show="*", bd=5)
@@ -71,8 +73,9 @@ class Start(Frame):
             def check():
                 if reg_name_entry.get()!="" or reg_password_entry.get()!="" or confirm_password_entry.get()!="":
                     if reg_password_entry.get()==confirm_password_entry.get():
+                        reg_password_salt = hashlib.pbkdf2_hmac('sha256', reg_password_entry.get().encode('utf-8'), salt, 100000)
                         with open("users.txt", "a") as f:
-                            f.write(reg_name_entry.get()+","+reg_password_entry.get()+"\n")
+                            f.write(reg_name_entry.get() + "," + reg_password_salt+"\n")
                             messagebox.showinfo("Welcome","You are registered successfully!!")
                             register_window.destroy()
                     else:
