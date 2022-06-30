@@ -17,7 +17,7 @@ class Start(Frame):
         Frame.__init__(self, parent)
         
         self.border = LabelFrame(self, text='Login', bg='ivory', bd = 10, font=("Arial", 20))
-        self.border.pack(fill="both", expand="yes", padx = 150, pady=150)
+        self.border.pack(fill="both", expand="yes", padx = 150, pady = 150)
         
         self.user_label = Label(self.border, text="Username", font=("Arial Bold", 15), bg='ivory')
         self.user_label.place(x=50, y=20)
@@ -35,11 +35,16 @@ class Start(Frame):
                     info = f.readlines()
                     i  = 0
                     for e in info:
-                        self.user_name, self.user_password =e.split(",")
-                        if self.user_name.strip() == self.user_entry.get() and self.user_password.strip() == self.password_entry.get():
-                            controller.show_frame(Second)
-                            i = 1
-                            break
+                        self.user_name, self.user_password, self.saltinput =e.split(",")
+                        if self.user_name.strip() == self.user_entry.get():
+                            salt = self.saltinput.strip()
+                            salt.encode('utf-8')
+                            passwordhash = hashlib.pbkdf2_hmac('sha256', self.password_entry.get().encode('utf-8'), salt, 100000)
+                            passwordstring = str(passwordhash)
+                            if self.user_password.strip() == passwordstring:
+                                controller.show_frame(Second)
+                                i = 1
+                                break
                     if i==0:
                         messagebox.showinfo("Error", "Please provide correct username and password!!")
             except:
@@ -75,7 +80,7 @@ class Start(Frame):
                     if reg_password_entry.get()==confirm_password_entry.get():
                         reg_password_salt = hashlib.pbkdf2_hmac('sha256', reg_password_entry.get().encode('utf-8'), salt, 100000)
                         with open("users.txt", "a") as f:
-                            f.write(reg_name_entry.get() + "," + str(reg_password_salt)+"\n")
+                            f.write(reg_name_entry.get()+","+str(reg_password_salt)+","+str(salt)+"\n")
                             messagebox.showinfo("Welcome","You are registered successfully!!")
                             register_window.destroy()
                     else:
