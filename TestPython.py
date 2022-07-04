@@ -31,15 +31,16 @@ class Start(Frame):
         
         def verify():
             try:
-                with open("users.txt", "r") as f:
-                    info = f.readlines()
-                    i  = 0
+                with open("users.txt", "r") as file:
+                    info = file.readlines()
+                    i = 0
+                    print("hey")
                     for e in info:
                         self.user_name, self.user_password, self.saltinput =e.split(",")
                         if self.user_name.strip() == self.user_entry.get():
                             salt = self.saltinput.strip()
-                            salt.encode('utf-8')
-                            passwordhash = hashlib.pbkdf2_hmac('sha256', self.password_entry.get().encode('utf-8'), salt, 100000)
+                            password_input_2 = self.password_entry.get()
+                            passwordhash = hashlib.pbkdf2_hmac('sha256', password_input_2.encode('utf-8'), salt.encode('utf-8'), 100000)
                             passwordstring = str(passwordhash)
                             if self.user_password.strip() == passwordstring:
                                 controller.show_frame(Second)
@@ -63,7 +64,8 @@ class Start(Frame):
             reg_name_label.place(x=10, y=10)
             reg_name_entry = Entry(register_window, width=30, bd=5)
             reg_name_entry.place(x = 200, y=10)
-            salt = os.urandom(32)
+            salt_created = os.urandom(32)
+            salt_used = str(salt_created)
 
             reg_password_label = Label(register_window, text="Password:", font=("Arial",15), bg="deep sky blue")
             reg_password_label.place(x=10, y=60)
@@ -78,9 +80,9 @@ class Start(Frame):
             def check():
                 if reg_name_entry.get()!="" or reg_password_entry.get()!="" or confirm_password_entry.get()!="":
                     if reg_password_entry.get()==confirm_password_entry.get():
-                        reg_password_salt = hashlib.pbkdf2_hmac('sha256', reg_password_entry.get().encode('utf-8'), salt, 100000)
+                        reg_password_salt = hashlib.pbkdf2_hmac('sha256', reg_password_entry.get().encode('utf-8'), salt_used.encode('utf-8'), 100000)
                         with open("users.txt", "a") as f:
-                            f.write(reg_name_entry.get()+","+str(reg_password_salt)+","+str(salt)+"\n")
+                            f.write(reg_name_entry.get()+","+str(reg_password_salt)+","+str(salt_used)+"\n")
                             messagebox.showinfo("Welcome","You are registered successfully!!")
                             register_window.destroy()
                     else:
