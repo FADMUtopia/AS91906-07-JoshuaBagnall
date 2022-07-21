@@ -150,10 +150,7 @@ class Booking_Page(Frame):
 
         cal = Calendar(self, selectmode = 'day', locale = "en_NZ")
         cal.tag_config('meeting', background='red', foreground='yellow')
-        cal.place(x=300, y=150)
-
-        time = cal.datetime.today
-        cal.calevent_create(cal.datetime.today(), "test", "meeting")
+        cal.pack(padx=100, pady=100, fill = "both", expand = True)
 
         current_bookings = []
         def make_events():
@@ -167,6 +164,11 @@ class Booking_Page(Frame):
                         formatted_date = datetime.datetime.strptime(date, "%d/%m/%y").date()
                         cal.calevent_create(formatted_date, "Reminder", "meeting")  
 
+        def clear_bookings():
+            cal.calevent_remove("all")
+            Booking_Page.destory()
+            controller.show_frame(Home)
+
         self.app_label = Label(self, text="Click on a date, then on confirm to make your booking", bg = "orange", font=("Arial Bold", 25))
         self.app_label.place(x=40, y=50)
 
@@ -179,7 +181,7 @@ class Booking_Page(Frame):
         self.home_button = Button(self, text="Home", font=("Arial", 15), command=lambda: controller.show_frame(Start))
         self.home_button.place(x=650, y=450)
         
-        self.back_button = Button(self, text="Back", font=("Arial", 15), command=lambda: controller.show_frame(Home))
+        self.back_button = Button(self, text="Back", font=("Arial", 15), command=clear_bookings)
         self.back_button.place(x=100, y=450)
         
 class Application(Tk):
