@@ -1,3 +1,5 @@
+from http.client import TEMPORARY_REDIRECT
+from tempfile import tempdir
 from tkinter import *
 from tkinter import messagebox
 import hashlib
@@ -5,7 +7,9 @@ import os
 import calendar
 import tkcalendar
 from tkcalendar import *
+from tkcalendar import Calendar, DateEntry
 import json
+import datetime
 
 bg_colour = '#ede4d1'
 colour_2 = '#ffe6b0'
@@ -86,16 +90,22 @@ class Start(Frame):
             
             def check():
                 if reg_name_entry.get()!="" or reg_password_entry.get()!="" or confirm_password_entry.get()!="":
-                    if reg_password_entry.get()==confirm_password_entry.get():
-                        reg_password_salt = hashlib.pbkdf2_hmac('sha256', reg_password_entry.get().encode('utf-8'), salt_used.encode('utf-8'), 100000)
-                        with open("users.txt", "a") as f:
-                            f.write(reg_name_entry.get()+" , "+str(reg_password_salt)+" , "+str(salt_used)+"\n")
-                            new_user = {"username": reg_name_entry.get(), "bookings":[]}
-                            write_json(new_user)
-                            messagebox.showinfo("Welcome","You are registered successfully!!")
-                            register_window.destroy()
+                    f = open("users.txt", "r")
+                    usernamecheck = reg_name_entry.get()
+                    readfile = f.read()
+                    if usernamecheck in readfile:
+                        messagebox.showinfo("Error", "User already exists")
                     else:
-                        messagebox.showinfo("Error","Your password didn't get match!!")
+                        if reg_password_entry.get()==confirm_password_entry.get():
+                            reg_password_salt = hashlib.pbkdf2_hmac('sha256', reg_password_entry.get().encode('utf-8'), salt_used.encode('utf-8'), 100000)
+                            with open("users.txt", "a") as f:
+                                f.write(reg_name_entry.get()+" , "+str(reg_password_salt)+" , "+str(salt_used)+"\n")
+                                new_user = {"username": reg_name_entry.get(), "bookings":[]}
+                                write_json(new_user)
+                                messagebox.showinfo("Welcome","You are registered successfully!!")
+                                register_window.destroy()
+                        else:
+                            messagebox.showinfo("Error","Your password didn't get match!!")
                 else:
                     messagebox.showinfo("Error", "Please fill the complete field!!")
                     
@@ -129,25 +139,34 @@ class Booking_Page(Frame):
         
         def confirm_date():
             saved_date = cal.get_date()
-            with open("bookings.json", "r+") as f:
-                f.seek(0)
-                flag = 0
-                index = 0
-                for line in f:
-                    index += 1
-                    print("hi")
-                    if user_temp in line:
-                        flag = 1
-                        break
-                if flag == 0:
-                    print(user_temp)
-                    messagebox.showinfo("Error","Your account couldn't be found")
-                else:
-                    f.write("hey")
+            f = open("bookings.json", "r")
+            data = json.load(f)
+            f.close()
+            for user in data["booking_details"]:
+                if user["username"] == user_temp:
+                    f = open("bookings.json" , "w")
+                    user["bookings"].append(saved_date)
+                    json.dump(data, f, indent = 4)
 
-        cal = Calendar(self, selectmode = 'day', year = 2022, month = 9, day = 21)
+        cal = Calendar(self, selectmode = 'day', locale = "en_NZ")
+        cal.tag_config('meeting', background='red', foreground='yellow')
         cal.place(x=300, y=150)
-        
+
+        f = open("bookings.json", "r")
+        data = json.load(f)
+        f.close()
+        current_bookings = []
+        time = cal.datetime.today
+        cal.calevent_create(cal.datetime.today(), "test", "meeting")
+        for user in data["booking_details"]:
+                if user["username"] == user_temp:
+                    current_bookings = user["bookings"]
+                    for date in current_bookings:
+                        formatted_date = datetime.datetime.strptime(date, "%d/%m/%y").date()
+                        cal.calevent_create(formatted_date, "Reminder", "meeting")
+                        events = cal.get_calevents()
+                        print(events)
+
         self.app_label = Label(self, text="Click on a date, then on confirm to make your booking", bg = "orange", font=("Arial Bold", 25))
         self.app_label.place(x=40, y=50)
 
@@ -164,7 +183,6 @@ class Application(Tk):
     def __init__(self, *args, **kwargs):
         Tk.__init__(self, *args, **kwargs)
         
-      
         self.window = Frame(self)
         self.window.pack()
         
@@ -186,13 +204,13 @@ class Application(Tk):
 
 def write_json(new_data, filename='bookings.json'):
     with open(filename,'r+') as file:
-          # First we load existing data into a dict.
+        
         file_data = json.load(file)
-        # Join new_data with file_data inside emp_details
+        
         file_data["booking_details"].append(new_data)
-        # Sets file's current position at offset.
+        
         file.seek(0)
-        # convert back to json.
+        
         json.dump(file_data, file, indent = 4)
 
 #start of program

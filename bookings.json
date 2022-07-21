@@ -2,7 +2,11 @@
     "booking_details": [
         {
             "username": "12",
-            "bookings": []
+            "bookings": [
+                "21/09/22",
+                "30/09/22",
+                "22/09/22"
+            ]
         },
         {
             "username": "13",
