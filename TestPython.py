@@ -152,26 +152,29 @@ class Booking_Page(Frame):
         cal.tag_config('meeting', background='red', foreground='yellow')
         cal.place(x=300, y=150)
 
-        f = open("bookings.json", "r")
-        data = json.load(f)
-        f.close()
-        current_bookings = []
         time = cal.datetime.today
         cal.calevent_create(cal.datetime.today(), "test", "meeting")
-        for user in data["booking_details"]:
+
+        current_bookings = []
+        def make_events():
+            f = open("bookings.json", "r")
+            data = json.load(f)
+            f.close()
+            for user in data["booking_details"]:
                 if user["username"] == user_temp:
                     current_bookings = user["bookings"]
                     for date in current_bookings:
                         formatted_date = datetime.datetime.strptime(date, "%d/%m/%y").date()
-                        cal.calevent_create(formatted_date, "Reminder", "meeting")
-                        events = cal.get_calevents()
-                        print(events)
+                        cal.calevent_create(formatted_date, "Reminder", "meeting")  
 
         self.app_label = Label(self, text="Click on a date, then on confirm to make your booking", bg = "orange", font=("Arial Bold", 25))
         self.app_label.place(x=40, y=50)
 
         self.confirm_button = Button(self, text = "Confirm", font = ("Arial", 15), command = confirm_date)
         self.confirm_button.place(x=475, y=450)
+
+        self.events_button = Button(self, text = "Show Bookings", font = ("Arial", 15), command = make_events)
+        self.events_button.place(x=300, y=450)
         
         self.home_button = Button(self, text="Home", font=("Arial", 15), command=lambda: controller.show_frame(Start))
         self.home_button.place(x=650, y=450)
