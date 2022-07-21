@@ -128,21 +128,28 @@ class Booking_Page(Frame):
         
         def confirm_date():
             saved_date = cal.get_date()
-            with open("users.txt", "a") as f:
-                f.write(saved_date)
+            with open("users.txt", "a+") as f:
+                flag = 0
+                index = 0
+                for line in f:
+                    index += 1
+                    if user_temp in line:
+                        flag = 1
+                        break
+                if flag == 0:
+                    messagebox.showinfo("Error","Your account couldn't be found")
+                else:
+                    f.write(", ")
+                    f.write(saved_date)
 
-
-
-
-        cal = Calendar(self, selectmode = 'day',
-               year = 2022, month = 9,
-               day = 22)
+        cal = Calendar(self, selectmode = 'day', year = 2022, month = 9, day = 22)
         cal.place(x=300, y=150)
         
         self.app_label = Label(self, text="Click on a date, then on confirm to make your booking", bg = "orange", font=("Arial Bold", 25))
         self.app_label.place(x=40, y=50)
 
         self.confirm_button = Button(self, text = "Confirm", font = ("Arial", 15), command = confirm_date)
+        self.confirm_button.place(x=475, y=450)
         
         self.home_button = Button(self, text="Home", font=("Arial", 15), command=lambda: controller.show_frame(Start))
         self.home_button.place(x=650, y=450)
@@ -189,6 +196,3 @@ if __name__ == '__main__':
     app = Application()
     app.maxsize(800,500)
     app.mainloop()
-
-dec = calendar.TextCalendar(calendar.SUNDAY)
-dec.prmonth(2020, 12)
