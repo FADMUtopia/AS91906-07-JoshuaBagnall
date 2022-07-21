@@ -2,32 +2,32 @@ from tkinter import *
 from tkinter import messagebox
 import hashlib
 import os
+import calendar
+import tkcalendar
 
-'''
-understanding the parameters in the init function (constructor):
-    self represents the current object. This is a common first parameter for any method of a class. As you suggested, it's similar to Java's this.
-    
-    parent represents a widget to act as the parent of the current object. All widgets in tkinter except the root window require a parent (sometimes also called a master)
-    
-    controller represents some other object that is designed to act as a common point of interaction for several pages of widgets. It is an attempt to decouple the pages. 
-    That is to say, each page doesn't need to know about the other pages. If it wants to interact with another page, such as causing it to be visible, it can ask the controller to make it visible.    
-    '''
+bg_colour = '#ede4d1'
+colour_2 = '#ffe6b0'
+
 class Start(Frame):
     def __init__(self, parent, controller):
         Frame.__init__(self, parent)
+        self.configure(bg=bg_colour)
         
-        self.border = LabelFrame(self, text='Login', bg='ivory', bd = 10, font=("Arial", 20))
+        self.border = LabelFrame(self, bg=colour_2, bd = 10, font=("Arial", 20))
         self.border.pack(fill="both", expand="yes", padx = 150, pady = 150)
+
+        self.main_label = Label(self.border, text = 'Login', font=("Arial Bold", 15), bg=colour_2)
+        self.main_label.place(x=50, y=5)
         
-        self.user_label = Label(self.border, text="Username", font=("Arial Bold", 15), bg='ivory')
-        self.user_label.place(x=50, y=20)
+        self.user_label = Label(self.border, text="Username", font=("Arial Bold", 15), bg=colour_2)
+        self.user_label.place(x=50, y=35)
         self.user_entry = Entry(self.border, width = 30, bd = 5)
-        self.user_entry.place(x=180, y=20)
+        self.user_entry.place(x=180, y=35)
         
-        self.password_label = Label(self.border, text="Password", font=("Arial Bold", 15), bg='ivory')
-        self.password_label.place(x=50, y=80)
+        self.password_label = Label(self.border, text="Password", font=("Arial Bold", 15), bg=colour_2)
+        self.password_label.place(x=50, y=95)
         self.password_entry = Entry(self.border, width = 30, show='*', bd = 5)
-        self.password_entry.place(x=180, y=80)
+        self.password_entry.place(x=180, y=95)
         
         def verify():
             try:
@@ -43,7 +43,7 @@ class Start(Frame):
                             passwordhash = hashlib.pbkdf2_hmac('sha256', password_input_2.encode('utf-8'), salt.encode('utf-8'), 100000)
                             passwordstring = str(passwordhash)
                             if self.user_password.strip() == passwordstring:
-                                controller.show_frame(Second)
+                                controller.show_frame(Home)
                                 i = 1
                                 break
                     if i==0:
@@ -53,12 +53,12 @@ class Start(Frame):
      
          
         self.submitbutton = Button(self.border, text="Submit", font=("Arial", 15), command=verify)
-        self.submitbutton.place(x=320, y=115)
+        self.submitbutton.place(x=320, y=130)
         
         def register():
             register_window = Tk()
             register_window.resizable(0,0)
-            register_window.configure(bg="ivory")
+            register_window.configure(bg=bg_colour)
             register_window.title("Register")
             reg_name_label = Label(register_window, text="Username:", font=("Arial",15), bg="deep sky blue")
             reg_name_label.place(x=10, y=10)
@@ -99,20 +99,18 @@ class Start(Frame):
         self.register_button = Button(self, text="Register", bg = "dark orange", font=("Arial",15), command=register)
         self.register_button.place(x=650, y=20)
         
-class Second(Frame):
+class Home(Frame):
     def __init__(self, parent, controller):
         Frame.__init__(self, parent)
+        self.configure(bg=bg_colour)
     
-        self.title_label = Label(self, text="Start of Appliction, Welocme to my program....", bg = "ivory", font=("Arial Bold", 25))
+        self.title_label = Label(self, text="Welcome to the MRGS Counselors Booking Webapp", bg = "ivory", font=("Arial Bold", 25))
         self.title_label.place(x=40, y=150)        
         self.next_button = Button(self, text="Next", font=("Arial", 15), command=lambda: controller.show_frame(Third))
         self.next_button.place(x=650, y=450)
         
-        self.back_button = Button(self, text="Back", font=("Arial", 15), command=lambda: controller.show_frame(Start))
-        self.back_button.place(x=100, y=450)
-        
-#A lambda function is a small anonymous function(usually we dont need to reuse it)
-#A lambda function can take any number of arguments, but can only have one expression 
+        self.sign_out_button = Button(self, text="Sign Out", font=("Arial", 15), command=lambda: controller.show_frame(Start))
+        self.sign_out_button.place(x=100, y=450)
 
 class Third(Frame):
     def __init__(self, parent, controller):
@@ -126,10 +124,11 @@ class Third(Frame):
         self.home_button = Button(self, text="Home", font=("Arial", 15), command=lambda: controller.show_frame(Start))
         self.home_button.place(x=650, y=450)
         
-        self.back_button = Button(self, text="Back", font=("Arial", 15), command=lambda: controller.show_frame(Second))
+        self.back_button = Button(self, text="Back", font=("Arial", 15), command=lambda: controller.show_frame(Home))
         self.back_button.place(x=100, y=450)
         
-'''https://pythonprogramming.net/object-oriented-programming-crash-course-tkinter/
+'''
+https://pythonprogramming.net/object-oriented-programming-crash-course-tkinter/
 above link explains the new *args,**kwargs arguments used below
 Like "self," actually typing out "args" and "kwargs" is not necessary, the asterisks to the trick. It is just common to add the "args" and "kwargs." 
 So what are these? These are used to pass a variable, unknown, amount of arguments through the method. The difference between them is that args are used to pass non-keyworded arguments, 
@@ -149,7 +148,7 @@ class Application(Tk):
         self.window.grid_columnconfigure(0, minsize = 800)
         
         self.frames = {}
-        for F in (Start, Second, Third):
+        for F in (Start, Home, Third):
             frame = F(self.window, self)
             self.frames[F] = frame
             frame.grid(row = 0, column=0, sticky="nsew")
@@ -168,3 +167,5 @@ if __name__ == '__main__':
     app.maxsize(800,500)
     app.mainloop()
 
+dec = calendar.TextCalendar(calendar.SUNDAY)
+dec.prmonth(2020, 12)
