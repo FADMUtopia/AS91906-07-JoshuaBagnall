@@ -4,9 +4,14 @@ import hashlib
 import os
 import calendar
 import tkcalendar
+from tkcalendar import *
 
 bg_colour = '#ede4d1'
 colour_2 = '#ffe6b0'
+user_temp = "temp"
+pass_temp = "temp"
+print(user_temp)
+print(pass_temp)
 
 class Start(Frame):
     def __init__(self, parent, controller):
@@ -34,7 +39,6 @@ class Start(Frame):
                 with open("users.txt", "r") as file:
                     info = file.readlines()
                     i = 0
-                    print("hey")
                     for e in info:
                         self.user_name, self.user_password, self.saltinput =e.split(",")
                         if self.user_name.strip() == self.user_entry.get():
@@ -43,6 +47,10 @@ class Start(Frame):
                             passwordhash = hashlib.pbkdf2_hmac('sha256', password_input_2.encode('utf-8'), salt.encode('utf-8'), 100000)
                             passwordstring = str(passwordhash)
                             if self.user_password.strip() == passwordstring:
+                                user_temp = self.user_entry.get()
+                                pass_temp = passwordstring
+                                print(user_temp)
+                                print(pass_temp)
                                 controller.show_frame(Home)
                                 i = 1
                                 break
@@ -106,20 +114,35 @@ class Home(Frame):
     
         self.title_label = Label(self, text="Welcome to the MRGS Counselors Booking Webapp", bg = "ivory", font=("Arial Bold", 25))
         self.title_label.place(x=40, y=150)        
-        self.next_button = Button(self, text="Next", font=("Arial", 15), command=lambda: controller.show_frame(Third))
+        self.next_button = Button(self, text="Next", font=("Arial", 15), command=lambda: controller.show_frame(Booking_Page))
         self.next_button.place(x=650, y=450)
         
         self.sign_out_button = Button(self, text="Sign Out", font=("Arial", 15), command=lambda: controller.show_frame(Start))
         self.sign_out_button.place(x=100, y=450)
 
-class Third(Frame):
+class Booking_Page(Frame):
     def __init__(self, parent, controller):
         Frame.__init__(self, parent)
         
         self.configure(bg='ivory')
         
-        self.app_label = Label(self, text="Store some content related to your \n project or what your application made for. \n All the best!!", bg = "orange", font=("Arial Bold", 25))
-        self.app_label.place(x=40, y=150)
+        def confirm_date():
+            saved_date = cal.get_date()
+            with open("users.txt", "a") as f:
+                f.write(saved_date)
+
+
+
+
+        cal = Calendar(self, selectmode = 'day',
+               year = 2022, month = 9,
+               day = 22)
+        cal.place(x=300, y=150)
+        
+        self.app_label = Label(self, text="Click on a date, then on confirm to make your booking", bg = "orange", font=("Arial Bold", 25))
+        self.app_label.place(x=40, y=50)
+
+        self.confirm_button = Button(self, text = "Confirm", font = ("Arial", 15), command = confirm_date)
         
         self.home_button = Button(self, text="Home", font=("Arial", 15), command=lambda: controller.show_frame(Start))
         self.home_button.place(x=650, y=450)
@@ -148,7 +171,7 @@ class Application(Tk):
         self.window.grid_columnconfigure(0, minsize = 800)
         
         self.frames = {}
-        for F in (Start, Home, Third):
+        for F in (Start, Home, Booking_Page):
             frame = F(self.window, self)
             self.frames[F] = frame
             frame.grid(row = 0, column=0, sticky="nsew")
