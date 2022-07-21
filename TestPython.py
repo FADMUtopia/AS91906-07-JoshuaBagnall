@@ -5,13 +5,12 @@ import os
 import calendar
 import tkcalendar
 from tkcalendar import *
+import json
 
 bg_colour = '#ede4d1'
 colour_2 = '#ffe6b0'
 user_temp = "temp"
 pass_temp = "temp"
-print(user_temp)
-print(pass_temp)
 
 class Start(Frame):
     def __init__(self, parent, controller):
@@ -40,7 +39,7 @@ class Start(Frame):
                     info = file.readlines()
                     i = 0
                     for e in info:
-                        self.user_name, self.user_password, self.saltinput =e.split(",")
+                        self.user_name, self.user_password, self.saltinput = e.split(" , ")
                         if self.user_name.strip() == self.user_entry.get():
                             salt = self.saltinput.strip()
                             password_input_2 = self.password_entry.get()
@@ -51,8 +50,6 @@ class Start(Frame):
                                 global pass_temp
                                 user_temp = self.user_entry.get()
                                 pass_temp = passwordstring
-                                print(user_temp)
-                                print(pass_temp)
                                 controller.show_frame(Home)
                                 i = 1
                                 break
@@ -93,6 +90,8 @@ class Start(Frame):
                         reg_password_salt = hashlib.pbkdf2_hmac('sha256', reg_password_entry.get().encode('utf-8'), salt_used.encode('utf-8'), 100000)
                         with open("users.txt", "a") as f:
                             f.write(reg_name_entry.get()+" , "+str(reg_password_salt)+" , "+str(salt_used)+"\n")
+                            new_user = {"username": reg_name_entry.get(), "bookings":[]}
+                            write_json(new_user)
                             messagebox.showinfo("Welcome","You are registered successfully!!")
                             register_window.destroy()
                     else:
@@ -130,12 +129,13 @@ class Booking_Page(Frame):
         
         def confirm_date():
             saved_date = cal.get_date()
-            with open("users.txt", "a+") as f:
+            with open("bookings.json", "r+") as f:
+                f.seek(0)
                 flag = 0
                 index = 0
                 for line in f:
                     index += 1
-                    print(user_temp)
+                    print("hi")
                     if user_temp in line:
                         flag = 1
                         break
@@ -143,9 +143,7 @@ class Booking_Page(Frame):
                     print(user_temp)
                     messagebox.showinfo("Error","Your account couldn't be found")
                 else:
-                    f.seek(index)
-                    f.write(" , ")
-                    f.write(saved_date)
+                    f.write("hey")
 
         cal = Calendar(self, selectmode = 'day', year = 2022, month = 9, day = 21)
         cal.place(x=300, y=150)
@@ -185,6 +183,17 @@ class Application(Tk):
         frame = self.frames[page]
         frame.tkraise()
         self.title("Application")
+
+def write_json(new_data, filename='bookings.json'):
+    with open(filename,'r+') as file:
+          # First we load existing data into a dict.
+        file_data = json.load(file)
+        # Join new_data with file_data inside emp_details
+        file_data["booking_details"].append(new_data)
+        # Sets file's current position at offset.
+        file.seek(0)
+        # convert back to json.
+        json.dump(file_data, file, indent = 4)
 
 #start of program
 if __name__ == '__main__':           
