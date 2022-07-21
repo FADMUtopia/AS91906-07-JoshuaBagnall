@@ -47,6 +47,8 @@ class Start(Frame):
                             passwordhash = hashlib.pbkdf2_hmac('sha256', password_input_2.encode('utf-8'), salt.encode('utf-8'), 100000)
                             passwordstring = str(passwordhash)
                             if self.user_password.strip() == passwordstring:
+                                global user_temp
+                                global pass_temp
                                 user_temp = self.user_entry.get()
                                 pass_temp = passwordstring
                                 print(user_temp)
@@ -90,7 +92,7 @@ class Start(Frame):
                     if reg_password_entry.get()==confirm_password_entry.get():
                         reg_password_salt = hashlib.pbkdf2_hmac('sha256', reg_password_entry.get().encode('utf-8'), salt_used.encode('utf-8'), 100000)
                         with open("users.txt", "a") as f:
-                            f.write(reg_name_entry.get()+","+str(reg_password_salt)+","+str(salt_used)+"\n")
+                            f.write(reg_name_entry.get()+" , "+str(reg_password_salt)+" , "+str(salt_used)+"\n")
                             messagebox.showinfo("Welcome","You are registered successfully!!")
                             register_window.destroy()
                     else:
@@ -133,16 +135,19 @@ class Booking_Page(Frame):
                 index = 0
                 for line in f:
                     index += 1
+                    print(user_temp)
                     if user_temp in line:
                         flag = 1
                         break
                 if flag == 0:
+                    print(user_temp)
                     messagebox.showinfo("Error","Your account couldn't be found")
                 else:
-                    f.write(", ")
+                    f.seek(index)
+                    f.write(" , ")
                     f.write(saved_date)
 
-        cal = Calendar(self, selectmode = 'day', year = 2022, month = 9, day = 22)
+        cal = Calendar(self, selectmode = 'day', year = 2022, month = 9, day = 21)
         cal.place(x=300, y=150)
         
         self.app_label = Label(self, text="Click on a date, then on confirm to make your booking", bg = "orange", font=("Arial Bold", 25))
@@ -156,15 +161,6 @@ class Booking_Page(Frame):
         
         self.back_button = Button(self, text="Back", font=("Arial", 15), command=lambda: controller.show_frame(Home))
         self.back_button.place(x=100, y=450)
-        
-'''
-https://pythonprogramming.net/object-oriented-programming-crash-course-tkinter/
-above link explains the new *args,**kwargs arguments used below
-Like "self," actually typing out "args" and "kwargs" is not necessary, the asterisks to the trick. It is just common to add the "args" and "kwargs." 
-So what are these? These are used to pass a variable, unknown, amount of arguments through the method. The difference between them is that args are used to pass non-keyworded arguments, 
-where kwargs are keyword arguments (hence the meshing in the name to make it kwargs). Args are your typical parameters. Kwargs, will basically be dictionaries.
-You can get by just thinking of kwargs as dictionaries that are being passed.
-'''
         
 class Application(Tk):
     def __init__(self, *args, **kwargs):
@@ -189,7 +185,6 @@ class Application(Tk):
         frame = self.frames[page]
         frame.tkraise()
         self.title("Application")
-
 
 #start of program
 if __name__ == '__main__':           
